@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q-Chat | Quantum Messaging</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e6e6ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Quantum particle background */
+        .quantum-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(100, 149, 237, 0.3);
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            50% { transform: translate(20px, 40px) scale(1.5); opacity: 0.6; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #7fffd4, #5d9bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(125, 255, 212, 0.3);
+        }
+        
+        .logo i {
+            font-size: 2rem;
+            color: #7fffd4;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        nav a {
+            color: #b8b8ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        
+        nav a:hover {
+            color: #7fffd4;
+            background: rgba(127, 255, 212, 0.1);
+        }
+        
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #7fffd4, #5d9bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #c5c5ff;
+        }
+        
+        .cta-button {
+            background: linear-gradient(to right, #7fffd4, #5d9bff);
+            color: #0f0c29;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(127, 255, 212, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(127, 255, 212, 0.5);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .feature-card {
+            background: rgba(36, 36, 62, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(127, 255, 212, 0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-color: rgba(127, 255, 212, 0.3);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #7fffd4;
+        }
+        
+        .feature-card p {
+            color: #c5c5ff;
+            line-height: 1.6;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #5d9bff;
+        }
+        
+        .info-section {
+            background: rgba(36, 36, 62, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 60px;
+            border: 1px solid rgba(127, 255, 212, 0.1);
+        }
+        
+        .info-section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #7fffd4;
+        }
+        
+        .info-section p {
+            color: #c5c5ff;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #b8b8ff;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h2 {
+                font-size: 2.2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Quantum background particles -->
+    <div class="quantum-bg" id="quantum-bg"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-atom"></i>
+                <h1>Q-Chat</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <section class="hero">
+            <h2>Visualizing Qubits & Quantum Gates</h2>
+            <p>Experience the future of messaging with quantum-inspired encryption. Q-Chat demonstrates binary shift encoding and quantum gate operations for secure communication.</p>
+            <button class="cta-button" onclick="window.location.href='graph1.html'">
+                Get Started <i class="fas fa-arrow-right"></i>
+            </button>
+        </section>
+        
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h3>Send a Message</h3>
+                <p>Use quantum-inspired encryption to send secure messages with visual representation of qubit states.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <h3>View Messages</h3>
+                <p>Retrieve and decode your quantum-encoded messages with beautiful visualization of the decoding process.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h3>Qubit Efficiency</h3>
+                <p>Monitor the efficiency of quantum bit usage and see how quantum properties enhance communication.</p>
+            </div>
+        </section>
+        
+        <section class="info-section">
+            <h2>Quantum Gates & Binary Shift Encoding</h2>
+            <p>This application demonstrates two quantum-inspired encoding techniques:</p>
+            <p>1. Quantum Gate Operations: Simulates the application of Hadamard, Pauli-X, and CNOT gates to create superposition and entanglement effects.</p>
+            <p>2. Binary Shift Encoding: Uses quantum-inspired binary operations to secure messages with a unique visual representation.</p>
+            <p>While not actual quantum computing (which requires specialized hardware), Q-Chat visually demonstrates the principles that make quantum communication so powerful.</p>
+        </section>
+        
+        <footer>
+            <p>© 2025 Q-Chat | Quantum-Inspired Messaging Application</p>
+        </footer>
+    </div>
+
+    <script>
+        // Create quantum background particles
+        document.addEventListener('DOMContentLoaded', function() {
+            const bg = document.getElementById('quantum-bg');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties for each particle
+                const size = Math.random() * 20 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = 10 + Math.random() * 20;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                bg.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>

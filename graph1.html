@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Chat with Gates & Binary Shift</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #f1f1f1;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #f1f1f1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+            color: #4facfe;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #00f2fe;
+        }
+
+        textarea, input[type="number"], select {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            transition: box-shadow 0.3s ease;
+            width: 100%;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="number"], select {
+            max-width: 200px;
+        }
+
+        textarea:focus, input[type="number"]:focus, select:focus {
+            box-shadow: 0 0 8px #00f2fe;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            max-width: 200px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .quantum-animation {
+            height: 100px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quantum-animation::before {
+            content: "";
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #00f2fe;
+            animation: quantumMove 3s infinite ease-in-out;
+            box-shadow: 0 0 20px #00f2fe;
+        }
+
+        @keyframes quantumMove {
+            0%, 100% { 
+                transform: translateX(-100px) scale(1);
+                opacity: 0.7;
+            }
+            50% { 
+                transform: translateX(100px) scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        .quantum-process {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .process-step {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .process-label {
+            font-weight: bold;
+            min-width: 180px;
+            color: #4facfe;
+        }
+
+        .bit-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+
+        .bit {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(79, 172, 254, 0.3);
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .message-item {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .message-content {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+
+        .explanation {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        /* Quantum Circuit Visualization */
+        .quantum-circuit {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .qubit-line {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            position: relative;
+        }
+
+        .qubit-line::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(79, 172, 254, 0.5);
+            z-index: 1;
+        }
+
+        .qubit-label {
+            width: 60px;
+            text-align: right;
+            padding-right: 10px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .gate {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #00f2fe;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+            background: rgba(0, 242, 254, 0.2);
+            z-index: 2;
+            font-weight: bold;
+        }
+
+        .gate.H { background: rgba(255, 105, 180, 0.3); border-color: #ff69b4; }
+        .gate.X { background: rgba(255, 215, 0, 0.3); border-color: #ffd700; }
+        .gate.Z { background: rgba(50, 205, 50, 0.3); border-color: #32cd32; }
+        .gate.CNOT { 
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(138, 43, 226, 0.3);
+            border-color: #8a2be2;
+            position: relative;
+        }
+
+        .gate.CNOT::after {
+            content: "+";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #8a2be2;
+        }
+
+        .circuit-step {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .circuit-explanation {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .circuit-visual {
+            flex: 2;
+            padding: 10px;
+        }
+
+        .encoding-type {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .encoding-option {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .encoding-option.selected {
+            background: rgba(79, 172, 254, 0.3);
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.5);
+        }
+
+        /* Efficiency Visualization */
+        .efficiency-visualization {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .visualization-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .axis {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .x-axis {
+            bottom: 40px;
+            left: 60px;
+            right: 20px;
+            height: 2px;
+        }
+
+        .y-axis {
+            top: 20px;
+            left: 60px;
+            bottom: 40px;
+            width: 2px;
+        }
+
+        .axis-label {
+            position: absolute;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .x-label {
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .y-label {
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%) rotate(-90deg);
+        }
+
+        .data-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .classical-point {
+            background: #ff6b6b;
+            box-shadow: 0 0 10px #ff6b6b;
+        }
+
+        .quantum-point {
+            background: #4facfe;
+            box-shadow: 0 0 10px #4facfe;
+        }
+
+        .line {
+            position: absolute;
+            transform-origin: left center;
+        }
+
+        .classical-line {
+            background: linear-gradient(to right, #ff6b6b, #ff9e6b);
+            height: 3px;
+        }
+
+        .quantum-line {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            height: 3px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-classical {
+            background: #ff6b6b;
+        }
+
+        .legend-quantum {
+            background: #4facfe;
+        }
+
+        .efficiency-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .process-step {
+                flex-direction: column;
+            }
+            
+            .process-label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+            
+            .circuit-step {
+                flex-direction: column;
+            }
+            
+            .encoding-type {
+                flex-direction: column;
+            }
+            
+            .visualization-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <header>
+                <h1>Quantum Chat Application</h1>
+                <p class="subtitle">Visualizing qubits, quantum gates, and binary shift encoding</p>
+            </header>
+            
+            <div class="nav-buttons">
+                <a href="#" class="nav-link" onclick="showPage('send-page')">Send a Message</a>
+                <a href="#" class="nav-link" onclick="showPage('receive-page')">View Messages</a>
+                <a href="#" class="nav-link" onclick="showPage('visualization-page')">Qubit Efficiency</a>
+            </div>
+            
+            <div class="explanation">
+                <h2>Quantum Gates & Binary Shift Encoding</h2>
+                <p>This application demonstrates two quantum-inspired encoding techniques:</p>
+                
+                <div class="encoding-type">
+                    <div class="encoding-option selected" onclick="selectEncoding('quantum')">
+                        <h3>Quantum Gates Encoding</h3>
+                        <p>Uses quantum gates (H, X, Z, CNOT) to manipulate qubits and encode messages using quantum dense coding principles.</p>
+                    </div>
+                    <div class="encoding-option" onclick="selectEncoding('binary')">
+                        <h3>Binary Shift Encoding</h3>
+                        <p>Uses binary shifting with a secret number to encode messages in a quantum-inspired way.</p>
+                    </div>
+                </div>
+                
+                <div id="quantum-explanation">
+                    <div class="quantum-circuit">
+                        <h3>Example Quantum Circuit</h3>
+                        <div class="qubit-line">
+                            <div class="qubit-label">Qubit 0</div>
+                            <div class="gate H">H</div>
+                            <div class="gate">•</div>
+                            <div class="gate">X</div>
+                            <div class="gate">Z</div>
+                            <div class="gate">•</div>
+                            <div class="gate H">H</div>
+                        </div>
+                        <div class="qubit-line">
+                            <div class="qubit-label">Qubit 1</div>
+                            <div class="gate"></div>
+                            <div class="gate CNOT"></div>
+                            <div class="gate"></div>
+                            <div class="gate"></div>
+                            <div class="gate CNOT"></div>
+                            <div class="gate"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="process-steps">
+                        <div class="step">
+                            <h3>1. Entanglement</h3>
+                            <p>Apply Hadamard and CNOT gates to create Bell state</p>
+                        </div>
+                        <div class="step">
+                            <h3>2. Encoding</h3>
+                            <p>Apply X, Z, or both gates based on message bits</p>
+                        </div>
+                        <div class="step">
+                            <h3>3. Decoding</h3>
+                            <p>Apply reverse operations to decode the message</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="binary-explanation" style="display: none;">
+                    <div class="process-steps">
+                        <div class="step">
+                            <h3>1. Convert to Binary</h3>
+                            <p>Each character is converted to its 8-bit binary representation</p>
+                        </div>
+                        <div class="step">
+                            <h3>2. Apply Shift</h3>
+                            <p>Each bit is shifted by a secret number you provide</p>
+                        </div>
+                        <div class="step">
+                            <h3>3. Decode</h3>
+                            <p>The receiver must enter the same secret number to reverse the shift and decode the message</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Efficiency Visualization Section -->
+                <div class="efficiency-visualization">
+                    <h3>Quantum Efficiency Advantage</h3>
+                    <p>Quantum computing offers exponential growth in processing power compared to classical computing:</p>
+                    
+                    <div class="efficiency-info">
+                        <p><strong>Classical Bits:</strong> n bits can represent 2^n states, but only one at a time</p>
+                        <p><strong>Quantum Qubits:</strong> n qubits can represent and process 2^n states simultaneously</p>
+                        <p>This exponential advantage is what makes quantum computing so powerful for certain tasks.</p>
+                    </div>
+                    
+                    <div class="visualization-container" id="home-efficiency-graph">
+                        <div class="x-axis axis"></div>
+                        <div class="y-axis axis"></div>
+                        
+                        <div class="axis-label x-label">Number of Bits/Qubits (n)</div>
+                        <div class="axis-label y-label">Processing Power (States)</div>
+                        
+                        <!-- Points and lines will be generated by JavaScript -->
+                    </div>
+                    
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color legend-classical"></div>
+                            <span>Classical Bits: n</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-quantum"></div>
+                            <span>Quantum Qubits: 2^n</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Send Page -->
+        <div id="send-page" class="page">
+            <header>
+                <h1>Quantum Chat Application</h1>
+                <p class="subtitle">Encode a message with quantum techniques</p>
+            </header>
+            
+            <div class="chat-container">
+                <div class="send-section">
+                    <h2>Encode a Message</h2>
+                    
+                    <div class="encoding-type">
+                        <div class="encoding-option selected" onclick="selectSendEncoding('quantum')">
+                            <h3>Quantum Gates Encoding</h3>
+                        </div>
+                        <div class="encoding-option" onclick="selectSendEncoding('binary')">
+                            <h3>Binary Shift Encoding</h3>
+                        </div>
+                    </div>
+                    
+                    <form id="message-form">
+                        <div>
+                            <label for="message-input">Your Message:</label>
+                            <textarea id="message-input" placeholder="Type your message here..." required>Hello Quantum World!</textarea>
+                        </div>
+                        
+                        <div id="binary-shift-controls" style="display: none;">
+                            <div>
+                                <label for="shift-number">Secret Shift Number:</label>
+                                <input type="number" id="shift-number" min="1" max="10" value="3" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit">Encode & Send</button>
+                    </form>
+                    
+                    <div class="quantum-animation">
+                        <span id="animation-text">Quantum Encoding in Progress...</span>
+                    </div>
+                    
+                    <h3>Encoding Process</h3>
+                    <div class="quantum-process">
+                        <div class="process-step">
+                            <span class="process-label">Original Text:</span>
+                            <span id="original-text">-</span>
+                        </div>
+                        <div class="process-step">
+                            <span class="process-label">Binary Representation:</span>
+                            <div class="bit-display" id="binary-representation">-</div>
+                        </div>
+                        <div class="process-step" id="shift-step" style="display: none;">
+                            <span class="process-label">Shifted Binary:</span>
+                            <div class="bit-display" id="shifted-binary">-</div>
+                        </div>
+                        <div class="process-step" id="quantum-step">
+                            <span class="process-label">Qubit Operations:</span>
+                            <span id="qubit-operations">-</span>
+                        </div>
+                    </div>
+                    
+                    <div id="circuit-section">
+                        <h3>Quantum Circuit Visualization</h3>
+                        <div id="circuit-visualization">
+                            <!-- Circuit will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" class="nav-link" onclick="showPage('home-page')">Back to Home</a>
+        </div>
+
+        <!-- Receive Page -->
+        <div id="receive-page" class="page">
+            <header>
+                <h1>Quantum Chat Application</h1>
+                <p class="subtitle">Decode messages with quantum techniques</p>
+            </header>
+            
+            <div class="chat-container">
+                <div class="receive-section">
+                    <h2>Received Messages</h2>
+                    
+                    <div id="decode-controls">
+                        <div>
+                            <label for="decode-number">Enter Secret Number to Decode (for Binary Shift messages):</label>
+                            <input type="number" id="decode-number" min="1" max="10" value="3">
+                            <button onclick="decodeMessages()">Decode Messages</button>
+                        </div>
+                    </div>
+                    
+                    <div class="quantum-animation"></div>
+                    
+                    <h3>Message History</h3>
+                    <div id="message-history">
+                        <p>No messages yet. Send a message first!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" class="nav-link" onclick="showPage('home-page')">Back to Home</a>
+        </div>
+
+        <!-- Visualization Page -->
+        <div id="visualization-page" class="page">
+            <header>
+                <h1>Quantum Efficiency Visualization</h1>
+                <p class="subtitle">See how qubits outperform classical bits</p>
+            </header>
+            
+            <div class="chat-container">
+                <div class="visualization-section">
+                    <h2>Qubit Efficiency Advantage</h2>
+                    
+                    <div class="efficiency-controls">
+                        <label for="qubit-count">Number of Qubits/Bits to visualize (1-10):</label>
+                        <input type="number" id="qubit-count" min="1" max="10" value="5">
+                        <button onclick="updateVisualization()">Update Visualization</button>
+                    </div>
+                    
+                    <div class="efficiency-visualization">
+                        <div class="visualization-container" id="efficiency-graph">
+                            <div class="x-axis axis"></div>
+                            <div class="y-axis axis"></div>
+                            
+                            <div class="axis-label x-label">Number of Bits/Qubits (n)</div>
+                            <div class="axis-label y-label">Processing Power (States)</div>
+                            
+                            <!-- Points and lines will be generated by JavaScript -->
+                        </div>
+                        
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color legend-classical"></div>
+                                <span>Classical Bits: n</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-quantum"></div>
+                                <span>Quantum Qubits: 2^n</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="efficiency-info">
+                        <h3>Why This Matters</h3>
+                        <p>While classical computers process information sequentially, quantum computers can process multiple states simultaneously through superposition and entanglement.</p>
+                        <p>This exponential growth in processing power means that problems which would take classical computers thousands of years to solve could potentially be solved by quantum computers in minutes or hours.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" class="nav-link" onclick="showPage('home-page')">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let messages = [];
+        let currentEncoding = 'quantum';
+        
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'receive-page') {
+                loadMessages();
+            } else if (pageId === 'visualization-page') {
+                updateVisualization();
+            } else if (pageId === 'home-page') {
+                createEfficiencyVisualization('home-efficiency-graph');
+            }
+        }
+        
+        // Encoding type selection
+        function selectEncoding(type) {
+            currentEncoding = type;
+            document.querySelectorAll('.encoding-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.closest('.encoding-option').classList.add('selected');
+            
+            if (type === 'quantum') {
+                document.getElementById('quantum-explanation').style.display = 'block';
+                document.getElementById('binary-explanation').style.display = 'none';
+            } else {
+                document.getElementById('quantum-explanation').style.display = 'none';
+                document.getElementById('binary-explanation').style.display = 'block';
+            }
+        }
+        
+        function selectSendEncoding(type) {
+            currentEncoding = type;
+            document.querySelectorAll('.encoding-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.closest('.encoding-option').classList.add('selected');
+            
+            if (type === 'quantum') {
+                document.getElementById('binary-shift-controls').style.display = 'none';
+                document.getElementById('shift-step').style.display = 'none';
+                document.getElementById('quantum-step').style.display = 'flex';
+                document.getElementById('circuit-section').style.display = 'block';
+                document.getElementById('animation-text').textContent = 'Quantum Encoding in Progress...';
+            } else {
+                document.getElementById('binary-shift-controls').style.display = 'block';
+                document.getElementById('shift-step').style.display = 'flex';
+                document.getElementById('quantum-step').style.display = 'none';
+                document.getElementById('circuit-section').style.display = 'none';
+                document.getElementById('animation-text').textContent = 'Binary Shift Encoding in Progress...';
+            }
+        }
+
+        // Message handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize visualization
+            createEfficiencyVisualization('home-efficiency-graph');
+            
+            // Check if we're on the send page
+            const messageForm = document.getElementById('message-form');
+            if (messageForm) {
+                const messageInput = document.getElementById('message-input');
+                const shiftNumber = document.getElementById('shift-number');
+                const originalText = document.getElementById('original-text');
+                const binaryRepresentation = document.getElementById('binary-representation');
+                const shiftedBinary = document.getElementById('shifted-binary');
+                const qubitOperations = document.getElementById('qubit-operations');
+                
+                // Handle form submission
+                messageForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const message = messageInput.value.trim();
+                    
+                    if (message) {
+                        try {
+                            let encodedMessage;
+                            
+                            if (currentEncoding === 'quantum') {
+                                // Encode the message with quantum operations
+                                encodedMessage = encodeWithQuantumGates(message);
+                                
+                                // Update UI with encoding details
+                                originalText.textContent = message;
+                                
+                                // Display binary representation
+                                binaryRepresentation.innerHTML = formatBinary(encodedMessage.binary);
+                                
+                                // Display quantum operations
+                                qubitOperations.textContent = encodedMessage.operations.map(op => 
+                                    `${op.bits}: ${op.gates} on qubit pair ${op.pair}`
+                                ).join('; ');
+                                
+                                // Generate circuit visualization
+                                generateCircuitVisualization(encodedMessage);
+                                
+                                // Store message
+                                messages.push({
+                                    id: messages.length,
+                                    original: message,
+                                    binary: encodedMessage.binary,
+                                    operations: encodedMessage.operations,
+                                    decoded: message,
+                                    encodingType: 'quantum'
+                                });
+                            } else {
+                                const shift = parseInt(shiftNumber.value);
+                                
+                                // Encode the message with binary shift
+                                encodedMessage = encodeMessage(message, shift);
+                                
+                                // Update UI with encoding details
+                                originalText.textContent = message;
+                                
+                                // Display binary representation
+                                binaryRepresentation.innerHTML = formatBinary(encodedMessage.originalBits);
+                                
+                                // Display shifted binary
+                                shiftedBinary.innerHTML = formatBinary(encodedMessage.encodedBits);
+                                
+                                // Store message
+                                messages.push({
+                                    id: messages.length,
+                                    original: message,
+                                    encoded: encodedMessage.encodedBits,
+                                    shift: shift,
+                                    decoded: '',
+                                    encodingType: 'binary'
+                                });
+                            }
+                            
+                            // Show success message
+                            alert('Message encoded and sent successfully!');
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Error encoding message');
+                        }
+                    }
+                });
+            }
+        });
+
+        // Create efficiency visualization
+        function createEfficiencyVisualization(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            // Clear previous visualization
+            const points = container.querySelectorAll('.data-point, .line');
+            points.forEach(point => point.remove());
+            
+            // Create data points and lines
+            const xAxis = container.querySelector('.x-axis');
+            const yAxis = container.querySelector('.y-axis');
+            
+            const width = xAxis.offsetWidth;
+            const height = yAxis.offsetHeight;
+            
+            // Create points for classical and quantum efficiency
+            for (let n = 1; n <= 10; n++) {
+                // Calculate positions
+                const xPos = (n / 10) * width;
+                const classicalYPos = height - (n / 10) * height;
+                const quantumYPos = height - (Math.min(Math.pow(2, n), 1024) / 1024) * height;
+                
+                // Create classical point
+                const classicalPoint = document.createElement('div');
+                classicalPoint.className = 'data-point classical-point';
+                classicalPoint.style.left = `${xPos + 60}px`;
+                classicalPoint.style.top = `${classicalYPos + 20}px`;
+                classicalPoint.title = `Classical: ${n} bits = ${n} states`;
+                container.appendChild(classicalPoint);
+                
+                // Create quantum point
+                const quantumPoint = document.createElement('div');
+                quantumPoint.className = 'data-point quantum-point';
+                quantumPoint.style.left = `${xPos + 60}px`;
+                quantumPoint.style.top = `${quantumYPos + 20}px`;
+                quantumPoint.title = `Quantum: ${n} qubits = ${Math.pow(2, n)} states`;
+                container.appendChild(quantumPoint);
+                
+                // Connect points with lines (after first point)
+                if (n > 1) {
+                    const prevClassicalPoint = container.querySelector(`.classical-point:nth-child(${n*2 - 2})`);
+                    const prevQuantumPoint = container.querySelector(`.quantum-point:nth-child(${n*2 - 1})`);
+                    
+                    if (prevClassicalPoint && prevQuantumPoint) {
+                        const prevClassicalRect = prevClassicalPoint.getBoundingClientRect();
+                        const prevQuantumRect = prevQuantumPoint.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        
+                        // Classical line
+                        const classicalLine = document.createElement('div');
+                        classicalLine.className = 'line classical-line';
+                        classicalLine.style.left = `${prevClassicalRect.left - containerRect.left + 6}px`;
+                        classicalLine.style.top = `${prevClassicalRect.top - containerRect.top + 6}px`;
+                        
+                        const classicalDeltaX = xPos - (prevClassicalRect.left - containerRect.left);
+                        const classicalDeltaY = classicalYPos - (prevClassicalRect.top - containerRect.top);
+                        const classicalLength = Math.sqrt(classicalDeltaX * classicalDeltaX + classicalDeltaY * classicalDeltaY);
+                        const classicalAngle = Math.atan2(classicalDeltaY, classicalDeltaX) * 180 / Math.PI;
+                        
+                        classicalLine.style.width = `${classicalLength}px`;
+                        classicalLine.style.transform = `rotate(${classicalAngle}deg)`;
+                        container.appendChild(classicalLine);
+                        
+                        // Quantum line
+                        const quantumLine = document.createElement('div');
+                        quantumLine.className = 'line quantum-line';
+                        quantumLine.style.left = `${prevQuantumRect.left - containerRect.left + 6}px`;
+                        quantumLine.style.top = `${prevQuantumRect.top - containerRect.top + 6}px`;
+                        
+                        const quantumDeltaX = xPos - (prevQuantumRect.left - containerRect.left);
+                        const quantumDeltaY = quantumYPos - (prevQuantumRect.top - containerRect.top);
+                        const quantumLength = Math.sqrt(quantumDeltaX * quantumDeltaX + quantumDeltaY * quantumDeltaY);
+                        const quantumAngle = Math.atan2(quantumDeltaY, quantumDeltaX) * 180 / Math.PI;
+                        
+                        quantumLine.style.width = `${quantumLength}px`;
+                        quantumLine.style.transform = `rotate(${quantumAngle}deg)`;
+                        container.appendChild(quantumLine);
+                    }
+                }
+            }
+        }
+
+        // Update visualization based on user input
+        function updateVisualization() {
+            const qubitCount = parseInt(document.getElementById('qubit-count').value) || 5;
+            const container = document.getElementById('efficiency-graph');
+            if (!container) return;
+            
+            // Clear previous visualization
+            const points = container.querySelectorAll('.data-point, .line');
+            points.forEach(point => point.remove());
+            
+            // Create data points and lines
+            const xAxis = container.querySelector('.x-axis');
+            const yAxis = container.querySelector('.y-axis');
+            
+            const width = xAxis.offsetWidth;
+            const height = yAxis.offsetHeight;
+            
+            // Create points for classical and quantum efficiency
+            for (let n = 1; n <= qubitCount; n++) {
+                // Calculate positions
+                const xPos = (n / qubitCount) * width;
+                const classicalYPos = height - (n / qubitCount) * height;
+                const quantumYPos = height - (Math.min(Math.pow(2, n), Math.pow(2, qubitCount)) / Math.pow(2, qubitCount)) * height;
+                
+                // Create classical point
+                const classicalPoint = document.createElement('div');
+                classicalPoint.className = 'data-point classical-point';
+                classicalPoint.style.left = `${xPos + 60}px`;
+                classicalPoint.style.top = `${classicalYPos + 20}px`;
+                classicalPoint.title = `Classical: ${n} bits = ${n} states`;
+                container.appendChild(classicalPoint);
+                
+                // Create quantum point
+                const quantumPoint = document.createElement('div');
+                quantumPoint.className = 'data-point quantum-point';
+                quantumPoint.style.left = `${xPos + 60}px`;
+                quantumPoint.style.top = `${quantumYPos + 20}px`;
+                quantumPoint.title = `Quantum: ${n} qubits = ${Math.pow(2, n)} states`;
+                container.appendChild(quantumPoint);
+                
+                // Connect points with lines (after first point)
+                if (n > 1) {
+                    const prevClassicalPoint = container.querySelector(`.classical-point:nth-child(${n*2 - 2})`);
+                    const prevQuantumPoint = container.querySelector(`.quantum-point:nth-child(${n*2 - 1})`);
+                    
+                    if (prevClassicalPoint && prevQuantumPoint) {
+                        const prevClassicalRect = prevClassicalPoint.getBoundingClientRect();
+                        const prevQuantumRect = prevQuantumPoint.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        
+                        // Classical line
+                        const classicalLine = document.createElement('div');
+                        classicalLine.className = 'line classical-line';
+                        classicalLine.style.left = `${prevClassicalRect.left - containerRect.left + 6}px`;
+                        classicalLine.style.top = `${prevClassicalRect.top - containerRect.top + 6}px`;
+                        
+                        const classicalDeltaX = xPos - (prevClassicalRect.left - containerRect.left);
+                        const classicalDeltaY = classicalYPos - (prevClassicalRect.top - containerRect.top);
+                        const classicalLength = Math.sqrt(classicalDeltaX * classicalDeltaX + classicalDeltaY * classicalDeltaY);
+                        const classicalAngle = Math.atan2(classicalDeltaY, classicalDeltaX) * 180 / Math.PI;
+                        
+                        classicalLine.style.width = `${classicalLength}px`;
+                        classicalLine.style.transform = `rotate(${classicalAngle}deg)`;
+                        container.appendChild(classicalLine);
+                        
+                        // Quantum line
+                        const quantumLine = document.createElement('div');
+                        quantumLine.className = 'line quantum-line';
+                        quantumLine.style.left = `${prevQuantumRect.left - containerRect.left + 6}px`;
+                        quantumLine.style.top = `${prevQuantumRect.top - containerRect.top + 6}px`;
+                        
+                        const quantumDeltaX = xPos - (prevQuantumRect.left - containerRect.left);
+                        const quantumDeltaY = quantumYPos - (prevQuantumRect.top - containerRect.top);
+                        const quantumLength = Math.sqrt(quantumDeltaX * quantumDeltaX + quantumDeltaY * quantumDeltaY);
+                        const quantumAngle = Math.atan2(quantumDeltaY, quantumDeltaX) * 180 / Math.PI;
+                        
+                        quantumLine.style.width = `${quantumLength}px`;
+                        quantumLine.style.transform = `rotate(${quantumAngle}deg)`;
+                        container.appendChild(quantumLine);
+                    }
+                }
+            }
+        }
+
+        // Encode message with quantum gates simulation
+        function encodeWithQuantumGates(message) {
+            // Convert text to binary
+            const binary = textToBinary(message);
+            const operations = [];
+            
+            // Process each pair of bits (each representing a qubit pair)
+            for (let i = 0; i < binary.length; i += 2) {
+                const bit1 = binary[i];
+                const bit2 = i + 1 < binary.length ? binary[i + 1] : '0'; // Pad if odd
+                const bits = bit1 + bit2;
+                
+                let gates = [];
+                if (bits === "00") {
+                    gates = ["H", "CNOT", "CNOT", "H"]; // Identity operation
+                } else if (bits === "01") {
+                    gates = ["H", "CNOT", "Z", "CNOT", "H"]; // Z gate
+                } else if (bits === "10") {
+                    gates = ["H", "CNOT", "X", "CNOT", "H"]; // X gate
+                } else if (bits === "11") {
+                    gates = ["H", "CNOT", "X", "Z", "CNOT", "H"]; // X and Z gates
+                }
+                
+                operations.push({
+                    bits: bits,
+                    gates: gates.join(" → "),
+                    pair: Math.floor(i/2) + 1
+                });
+            }
+            
+            return {
+                binary: binary,
+                operations: operations
+            };
+        }
+
+        // Encode message with binary shift
+        function encodeMessage(message, shift) {
+            // Convert text to binary array
+            const originalBits = textToBinaryArray(message);
+            
+            // Apply shift to each bit
+            const encodedBits = originalBits.map(bit => {
+                return (bit + shift) % 2; // Simple modulo shift (0->1, 1->0 with shift=1)
+            });
+            
+            return {
+                originalBits: originalBits,
+                encodedBits: encodedBits
+            };
+        }
+
+        // Decode message with binary shift
+        function decodeMessage(encodedBits, shift) {
+            // Apply reverse shift to each bit
+            return encodedBits.map(bit => {
+                return (bit + shift) % 2; // Same operation for encoding/decoding
+            });
+        }
+
+        // Convert text to binary string
+        function textToBinary(text) {
+            return text.split('').map(char => {
+                const binary = char.charCodeAt(0).toString(2);
+                return binary.padStart(8, '0');
+            }).join('');
+        }
+
+        // Convert text to binary array
+        function textToBinaryArray(text) {
+            const binaryString = text.split('').map(char => {
+                const binary = char.charCodeAt(0).toString(2);
+                return binary.padStart(8, '0');
+            }).join('');
+            
+            return binaryString.split('').map(bit => parseInt(bit));
+        }
+
+        // Convert binary array to text
+        function binaryArrayToText(binaryArray) {
+            const binaryString = binaryArray.join('');
+            const bytes = binaryString.match(/.{1,8}/g) || [];
+            return bytes.map(byte => String.fromCharCode(parseInt(byte, 2))).join('');
+        }
+
+        // Format binary as |0⟩|1⟩|0⟩...
+        function formatBinary(binary) {
+            const container = document.createElement('div');
+            container.className = 'bit-display';
+            
+            // Handle both string and array formats
+            const bits = typeof binary === 'string' ? binary.split('') : binary;
+            
+            bits.forEach(bit => {
+                const bitElement = document.createElement('span');
+                bitElement.className = 'bit';
+                bitElement.textContent = `|${bit}⟩`;
+                container.appendChild(bitElement);
+            });
+            
+            return container.innerHTML;
+        }
+
+        // Generate circuit visualization
+        function generateCircuitVisualization(encodedMessage) {
+            const container = document.getElementById('circuit-visualization');
+            container.innerHTML = '';
+            
+            // Create a visualization for each qubit pair
+            encodedMessage.operations.forEach((op, index) => {
+                const circuitStep = document.createElement('div');
+                circuitStep.className = 'circuit-step';
+                
+                const explanation = document.createElement('div');
+                explanation.className = 'circuit-explanation';
+                explanation.innerHTML = `
+                    <h4>Qubit Pair ${op.pair} (Bits: ${op.bits})</h4>
+                    <p>Gates applied: ${op.gates}</p>
+                `;
+                
+                const visual = document.createElement('div');
+                visual.className = 'circuit-visual';
+                
+                // Create circuit visualization based on gates
+                const gates = op.gates.split(" → ");
+                
+                const qubitLine1 = document.createElement('div');
+                qubitLine1.className = 'qubit-line';
+                qubitLine1.innerHTML = `<div class="qubit-label">Qubit 0</div>`;
+                
+                const qubitLine2 = document.createElement('div');
+                qubitLine2.className = 'qubit-line';
+                qubitLine2.innerHTML = `<div class="qubit-label">Qubit 1</div>`;
+                
+                gates.forEach(gate => {
+                    if (gate === 'H') {
+                        qubitLine1.innerHTML += `<div class="gate H">H</div>`;
+                        qubitLine2.innerHTML += `<div class="gate"></div>`;
+                    } else if (gate === 'X') {
+                        qubitLine1.innerHTML += `<div class="gate X">X</div>`;
+                        qubitLine2.innerHTML += `<div class="gate"></div>`;
+                    } else if (gate === 'Z') {
+                        qubitLine1.innerHTML += `<div class="gate Z">Z</div>`;
+                        qubitLine2.innerHTML += `<div class="gate"></div>`;
+                    } else if (gate === 'CNOT') {
+                        qubitLine1.innerHTML += `<div class="gate">•</div>`;
+                        qubitLine2.innerHTML += `<div class="gate CNOT"></div>`;
+                    }
+                });
+                
+                visual.appendChild(qubitLine1);
+                visual.appendChild(qubitLine2);
+                
+                circuitStep.appendChild(explanation);
+                circuitStep.appendChild(visual);
+                container.appendChild(circuitStep);
+            });
+        }
+
+        // Load messages
+        function loadMessages() {
+            displayMessages(messages);
+        }
+
+        // Decode all messages with the provided shift number
+        function decodeMessages() {
+            const shift = parseInt(document.getElementById('decode-number').value);
+            
+            if (!shift) {
+                alert('Please enter a valid shift number');
+                return;
+            }
+            
+            messages.forEach(message => {
+                if (message.encodingType === 'binary' && message.shift === shift) {
+                    const decodedBits = decodeMessage(message.encoded, shift);
+                    message.decoded = binaryArrayToText(decodedBits);
+                }
+            });
+            
+            displayMessages(messages);
+        }
+
+        // Display messages in the UI
+        function displayMessages(messages) {
+            const container = document.getElementById('message-history');
+            
+            if (!messages || messages.length === 0) {
+                container.innerHTML = '<p>No messages yet. Send a message first!</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Display messages in reverse order (newest first)
+            messages.slice().reverse().forEach(msg => {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message-item';
+                
+                if (msg.encodingType === 'quantum') {
+                    messageElement.innerHTML = `
+                        <div class="message-content">
+                            <strong>Original Text:</strong> ${msg.original}
+                        </div>
+                        <div class="process-step">
+                            <span class="process-label">Binary Representation:</span>
+                            <div class="bit-display">${formatBinary(msg.binary)}</div>
+                        </div>
+                        <div class="process-step">
+                            <span class="process-label">Quantum Operations:</span>
+                            <span>${msg.operations.map(op => 
+                                `Bits ${op.bits}: ${op.gates}`
+                            ).join('; ')}</span>
+                        </div>
+                        <div class="process-step">
+                            <span class="process-label">Encoding Type:</span>
+                            <span>Quantum Gates</span>
+                        </div>
+                    `;
+                } else {
+                    messageElement.innerHTML = `
+                        <div class="message-content">
+                            <strong>Encoded Binary:</strong>
+                            <div class="bit-display">${formatBinary(msg.encoded)}</div>
+                        </div>
+                        <div class="process-step">
+                            <span class="process-label">Shift Value:</span>
+                            <span>${msg.shift}</span>
+                        </div>
+                        <div class="process-step">
+                            <span class="process-label">Decoded Text:</span>
+                            <span>${msg.decoded || 'Not decoded yet'}</span>
+                        </div>
+                        <div class="process-step">
+                            <span class="process-label">Encoding Type:</span>
+                            <span>Binary Shift</span>
+                        </div>
+                    `;
+                }
+                
+                container.appendChild(messageElement);
+            });
+        }
+    </script>
+</body>
+</html>
